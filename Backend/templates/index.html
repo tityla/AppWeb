@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="es">
+    <!-- Establece de incio el idioma del sitio para que pueda ser traducido-->
+<head>
+    <!--
+    Las etiquetas meta aseguran la codificación estándar de caracteres y que la página se vea bien en dspositivos móviles,
+    ajustando el zoom y el ancho:
+  -->
+  <meta charset="UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Panel de Análisis de Calificaciones</title>
+
+  <!--
+    Link al nombre del archivo de estilo CSS.
+  -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+
+  <!--
+    HEADER PRINCIPAL DEL SITIO
+    Contiene: título, subtítulo, logo y menú de navegación.
+  -->
+  <header class="site-header">
+    
+    <div class="logo-area">
+      <h1>Panel de Análisis de vCalificaciones</h1>
+      <p class="subtitle">UNITEC · Cálculo de Promedio y Pronóstico</p>
+      <img src="{{ url_for('static', filename='img/LogoUNITEC.jpg') }}" height="100">
+    </div>
+   
+    <!--
+      Botón "hamburguesa" para abrir/cerrar la navegación en dispositivos móviles.
+      El script.js usa la clase .nav-toggle y el atributo aria-expanded.
+    -->
+    <button class="nav-toggle" aria-label="Abrir menú" aria-expanded="false">
+      ☰
+    </button>
+
+    <!--
+      Navegación principal del sitio.
+      El script.js agrega o quita la clase .open a este <nav> para gestionarlo en dispositivo móvil.
+    -->
+    <nav class="site-nav">
+      <ul>
+        <!--
+          Enlaces de navegación: con hiper referencia a secciones dentro de la misma página (anclas).
+        -->
+        <li><a href="#panel">Panel</a></li>
+        <li><a href="#ayuda">Ayuda</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!--
+    MAIN
+    Contiene: Contenido principal de la aplicación.
+    Incluye: introducción, formulario, resultados y sección de ayuda.
+  -->
+  <main id="panel">
+
+    <!-- SECCIÓN DE LOGIN -->
+    <section id="loginSection" class="card login-card">
+      <header>
+        <h2>Acceso a la plataforma</h2>
+      </header>
+      <p class="hint">
+        Ingresa con tu correo institucional para usar el panel de análisis de calificaciones.
+      </p>
+      <form id="loginForm" novalidate>
+        <div class="form-row">
+          <label for="loginEmail">Correo institucional</label>
+          <input
+            type="email"
+            id="loginEmail"
+            name="loginEmail"
+            required
+            placeholder="profesor@unitec.edu">
+        </div>
+        <div class="form-row">
+          <label for="loginPassword">Contraseña</label>
+          <input
+            type="password"
+            id="loginPassword"
+            name="loginPassword"
+            required
+            placeholder="Contraseña">
+        </div>
+        <button type="submit" class="btn primary">Iniciar sesión</button>
+      </form>
+      <p id="loginMessage" class="form-message" aria-live="polite"></p>
+      <p class="version-info">
+        Versión: {{ app_version }} · Última actualización: {{ last_update }}
+      </p>
+    </section>
+
+    <!-- CONTENIDO PRINCIPAL (se muestra después de iniciar sesión) --> 
+    <section id="appContent" class="app-content hidden">
+
+    <!--SECCIÓN CON INSTRUCCIONES DE USO
+      Explica al usuario qué información necesita para interactuar con el sitio y, en lista no ordenada, 
+      qué hace la herramienta.-->
+
+      <section class="intro">
+        <h2>Captura y analiza tus calificaciones</h2>
+        <p>
+        Ingresa tus datos de estudiante y tus calificaciones en <strong>3 materias</strong> a lo largo de
+        <strong>4 periodos bimestrales</strong>. El sistema calculará:
+        </p>
+        <ul>
+          <li>Tu promedio por materia</li>
+          <li>Tu promedio general</li>
+          <li>Un pronóstico de calificación para el siguiente periodo</li>
+        </ul>
+      </section>
+
+    <!--
+      SECCIÓN LAYOUT PRINCIPAL
+      Usa un contenedor con display grid (definido en el archivo CSS)
+      para dividir la pantalla en dos columnas:
+      - Izquierda: formulario de captura
+      - Derecha: panel de promedios y pronóstico
+    -->
+    <section class="layout">
+
+      <!--
+        FORMULARIO PRINCIPAL
+        Aquí el usuario ingresa:
+        - Datos solicitados del estudiante
+        - Nombres personalizables de materias
+        - Calificaciones por bimestre
+      -->
+      <article class="card" aria-label="Formulario de captura de calificaciones">
+        <header>
+          <h3>Datos del estudiante y calificaciones</h3>
+        </header>
+
+        <!--
+          FORMULARIO DE CALIFICACIONES
+          El atributo id="gradeForm" es usado por script.js para:
+          - Escuchar el evento submit
+          - Leer y validar los datos
+          Se usa novalidate para manejar validación con JS en lugar de la nativa del navegador.
+        -->
+        <form id="gradeForm" novalidate>
+          <!--
+            DATOS DEL ESTUDIANTE
+            Incluye: nombre, correo institucional y fecha de captura para control de registro.
+          -->
+          <section class="form-section">
+            <h4>Datos generales</h4>
+
+            <!-- Campo obligatorio: nombre del estudiante -->
+            <div class="form-row">
+              <label for="studentName">Nombre del estudiante</label>
+              <input
+                type="text"
+                id="studentName"
+                name="studentName"
+                required
+                placeholder="Ej. Pedro Sánchez">
+            </div>
+
+            <!-- Campo obligatorio: correo electrónico (tipo email) -->
+            <div class="form-row">
+              <label for="studentEmail">Correo electrónico</label>
+              <input
+                type="email"
+                id="studentEmail"
+                name="studentEmail"
+                required
+                placeholder="alumno@colegio.edu">
+            </div>
+
+            <!-- Campo: fecha de captura (no obligatorio pero útil para registro) -->
+            <div class="form-row">
+              <label for="captureDate">Fecha de captura</label>
+              <input
+                type="date"
+                id="captureDate"
+                name="captureDate">
+            </div>
+          </section>
+
+          <!--
+            NOMBRE DE MATERIAS
+            Permite personalizar el nombre de las tres materias admitidas.
+            El JS sincroniza estos nombres con etiquetas en el formulario y la tabla de resultados.
+          -->
+          <section class="form-section">
+            <h4>Materias</h4>
+            <p class="hint">Puedes personalizar el nombre de cada materia si así lo requieres.</p>
+
+            <div class="subject-names">
+              <!-- Materia 1 -->
+              <div class="form-row">
+                <label for="subject1Name">Materia 1</label>
+                <input type="text" id="subject1Name" value="Matemáticas">
+              </div>
+              <!-- Materia 2 -->
+              <div class="form-row">
+                <label for="subject2Name">Materia 2</label>
+                <input type="text" id="subject2Name" value="Programación">
+              </div>
+              <!-- Materia 3 -->
+              <div class="form-row">
+                <label for="subject3Name">Materia 3</label>
+                <input type="text" id="subject3Name" value="Bases de datos">
+              </div>
+            </div>
+          </section>
+
+          <!--
+            CALIFICACIONES POR BIMESTRE
+            Se usa un grid (CSS) para representar un formato tabla:
+            - Fila uno: encabezados de bimestres.
+            - Filas siguientes: una fila por materia.
+          -->
+          <section class="form-section">
+            <h4>Calificaciones por bimestre</h4>
+            <p class="hint">
+              Escala sugerida: 0 a 10. Los campos aceptan decimales.
+            </p>
+
+            <!--
+              Contenedor con display: grid (definido en CSS).
+              data-subject y data-period son atributos usados por JS
+              para identificar materia y bimestre.
+            -->
+            <div class="grades-grid">
+              <!-- Encabezado fila: nombres de columnas -->
+              <div class="grades-header">Materia / Bimestre</div>
+              <div class="grades-header">1°</div>
+              <div class="grades-header">2°</div>
+              <div class="grades-header">3°</div>
+              <div class="grades-header">4°</div>
+
+              <!-- Fila: Materia 1 -->
+              <div class="subject-label" data-subject="1">
+                <!-- Span con id que JS actualiza según el nombre escrito arriba -->
+                <span id="labelSubject1">Matemáticas</span>
+              </div>
+              <!-- Inputs numéricos para los 4 bimestres de la materia 1 -->
+              <input type="number" class="grade-input" data-subject="1" data-period="1"
+                     min="0" max="10" step="0.1" required>
+              <input type="number" class="grade-input" data-subject="1" data-period="2"
+                     min="0" max="10" step="0.1" required>
+              <input type="number" class="grade-input" data-subject="1" data-period="3"
+                     min="0" max="10" step="0.1" required>
+              <input type="number" class="grade-input" data-subject="1" data-period="4"
+                     min="0" max="10" step="0.1" required>
+
+              <!-- Fila: Materia 2 -->
+              <div class="subject-label" data-subject="2">
+                <span id="labelSubject2">Programación</span>
+              </div>
+              <input type="number" class="grade-input" data-subject="2" data-period="1"
+                     min="0" max="10" step="0.1" required>
+              <input type="number" class="grade-input" data-subject="2" data-period="2"
+                     min="0" max="10" step="0.1" required>
+              <input type="number" class="grade-input" data-subject="2" data-period="3"
+                     min="0" max="10" step="0.1" required>
+              <input type="number" class="grade-input" data-subject="2" data-period="4"
+                     min="0" max="10" step="0.1" required>
+
+              <!-- Fila: Materia 3 -->
+              <div class="subject-label" data-subject="3">
+                <span id="labelSubject3">Bases de datos</span>
+              </div>
+              <input type="number" class="grade-input" data-subject="3" data-period="1"
+                     min="0" max="10" step="0.1" required>
+              <input type="number" class="grade-input" data-subject="3" data-period="2"
+                     min="0" max="10" step="0.1" required">
+              <input type="number" class="grade-input" data-subject="3" data-period="3"
+                     min="0" max="10" step="0.1" required>
+              <input type="number" class="grade-input" data-subject="3" data-period="4"
+                     min="0" max="10" step="0.1" required>
+            </div>
+          </section>
+
+          <!--
+            ACCIONES DEL FORMULARIO
+            Botón para calcular y botón para limpiar.
+          -->
+          <section class="form-actions">
+            <!--
+              Botón principal: dispara el evento tipo submit del formulario.
+              El script usa este evento para calcular promedios y pronósticos.
+            -->
+            <button type="submit" class="btn primary">Calcular promedios</button>
+
+            <!--
+              Botón secundario: se maneja con JS (no es submit),
+              resetea todos los datos.
+            -->
+            <button type="button" id="clearBtn" class="btn secondary">Limpiar datos</button>
+          </section>
+
+          <!--
+            Área donde se muestran mensajes de error o éxito.
+            El script usa el id="formMessage" para escribir aquí.
+          -->
+          <p id="formMessage" class="form-message" aria-live="polite"></p>
+        </form>
+      </article>
+
+      <!--
+        PANEL DE RESULTADOS
+        Muestra los promedios y pronósticos calculados por el script.js.
+      -->
+      <article class="card results-card" aria-label="Resultados de análisis">
+        <header>
+          <h3>Resultados y pronósticos</h3>
+        </header>
+
+        <!--
+          Filtro de materias:
+          El select tiene id="filterSubject" y es utilizado por JS
+          para gestionar filas de la tabla de resultados.
+        -->
+        <section class="filter-section">
+          <label for="filterSubject">Filtrar por materia:</label>
+          <select id="filterSubject">
+            <option value="all">Mostrar todas</option>
+            <option value="1">Solo Materia 1</option>
+            <option value="2">Solo Materia 2</option>
+            <option value="3">Solo Materia 3</option>
+          </select>
+        </section>
+
+        <!--
+          TABLA DE RESULTADOS:
+          Cada fila del cuerpo tiene un atributo data-subject-row
+          que JS usa para aplicar el filtro.
+        -->
+        <section class="results-section">
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th>Materia</th>
+                <th>Promedio</th>
+                <th>Pronóstico próximo bimestre</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Fila resultados Materia 1 -->
+              <tr data-subject-row="1">
+                <td><span id="resSubject1">Matemáticas</span></td>
+                <td><span id="avgSubject1">-</span></td>
+                <td><span id="forecastSubject1">-</span></td>
+              </tr>
+              <!-- Fila resultados Materia 2 -->
+              <tr data-subject-row="2">
+                <td><span id="resSubject2">Programación</span></td>
+                <td><span id="avgSubject2">-</span></td>
+                <td><span id="forecastSubject2">-</span></td>
+              </tr>
+              <!-- Fila resultados Materia 3 -->
+              <tr data-subject-row="3">
+                <td><span id="resSubject3">Bases de datos</span></td>
+                <td><span id="avgSubject3">-</span></td>
+                <td><span id="forecastSubject3">-</span></td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <!--
+                Fila donde se muestra el promedio global
+                y el pronóstico global (promedios de materias).
+              -->
+              <tr>
+                <th>Promedio general</th>
+                <th><span id="globalAverage">-</span></th>
+                <th><span id="globalForecast">-</span></th>
+              </tr>
+            </tfoot>
+          </table>
+        </section>
+
+        <!--
+          NOTA ACLARATORIA:
+          Texto fijo que explica el criterio de cálculo de pronóstico.
+        -->
+        <section class="notes-section">
+          <h4>Cómo se calcula el pronóstico</h4>
+          <p>
+            El pronóstico por materia se obtiene tomando el
+            <strong>promedio de las dos últimas calificaciones</strong> registradas para esa materia.
+            Si solo existe una calificación, se usa ese valor como pronóstico.
+            El pronóstico general es el promedio de los pronósticos de todas las materias.
+          </p>
+        </section>
+      </article>
+    </section>
+
+    <!--
+      SECCIÓN DE AYUDA
+      Señala paso a paso el uso de la aplicación en caso de duda.
+    -->
+    <section id="ayuda" class="help-section">
+      <article class="card">
+        <header>
+          <h3>Ayuda rápida</h3>
+        </header>
+        <p>
+          1. Completa tus datos de estudiante e ingresa tus calificaciones por bimestre.<br>
+          2. Haz clic en <strong>“Calcular promedios”</strong> para ver los resultados.<br>
+          3. Usa el filtro para enfocarte en una materia específica.<br>
+          4. Si quieres iniciar de nuevo, utiliza el botón <strong>“Limpiar datos”</strong>.
+        </p>
+        <p>
+          Todos los cálculos se realizan en tu navegador. No se envían datos al servidor.
+        </p>
+      </article>
+    </section>
+  </main>
+
+  <!--
+    FOOTER: Pie de página con año de creación e información institucional básica.
+  -->
+  <footer class="site-footer">
+    <p>&copy; 2025 · Panel de Calificaciones · UNITEC</p>
+  </footer>
+
+  <!--
+    Enlace al archivo JavaScript que contiene toda la lógica.
+    Debe llamarse script.js y estar en la misma carpeta.
+  -->
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>
