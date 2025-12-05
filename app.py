@@ -51,12 +51,12 @@ APP_CHANGELOG = [
 # 2. "Base de datos" simulada de usuarios (en un entorno real estaría en una BD)
 
 usuarios = {
-    "profesor_inscrito@example.com": {
-        "password_hash": generate_password_hash("contrasena_segura"),
+    "profesor_inscrito@ejemplo.com": {
+        "password_hash": generate_password_hash("profe_inscrito"),
         "is_enrolled": True
     },
-    "profesor_no_inscrito@example.com": {
-        "password_hash": generate_password_hash("otra_contrasena"),
+    "profesor_no_inscrito@ejemplo.com": {
+        "password_hash": generate_password_hash("profe_no_inscrito"),
         "is_enrolled": False
     }
 }
