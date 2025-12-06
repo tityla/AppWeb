@@ -1,27 +1,35 @@
 
 document.addEventListener("DOMContentLoaded", function () {
   // Este evento se ejecuta cuando TODO el HTML ya fue cargado.
-  // Es importante porque muchos elementos aún no existen si este
-  // script se ejecuta antes que el DOM esté listo.
   console.log("DOM completamente cargado.");
 
-  /* 1.REFERENCIAS A ELEMENTOS DEL DOM
+  /* 1. REFERENCIAS A ELEMENTOS DEL DOM
      Aquí obtenemos los elementos que vamos a manipular.*/
 
-  //  Elementos de LOGIN y APP 
+  // --- Elementos de LOGIN y APP ---
   var loginForm = document.getElementById("loginForm");
   var loginMessage = document.getElementById("loginMessage");
   var loginSection = document.getElementById("loginSection");
-  var appContent = document.getElementById("appContent");
+
+  // Campos de login (correo y contraseña)
+  var loginEmail = document.getElementById("loginEmail");
+  var loginPassword = document.getElementById("loginPassword");
+
+  // Contenido principal de la app (panel de análisis).
+  // Primero intentamos con "appContent"; si no existe, usamos "panel".
+  var appContent =
+    document.getElementById("appContent") || document.getElementById("panel");
+
+  // Botón para cerrar sesión (si existe en el HTML).
   var logoutBtn = document.getElementById("logoutBtn");
 
-  // Formulario principal donde el alumno ingresa datos.
+  // --- Formulario principal donde el alumno ingresa datos de calificaciones ---
   var gradeForm = document.getElementById("gradeForm");
 
-  // Área donde se muestran mensajes de éxito o error.
+  // Área donde se muestran mensajes de éxito o error del formulario de calificaciones.
   var formMessage = document.getElementById("formMessage");
 
-  // Botón para reiniciar todos los campos.
+  // Botón para reiniciar todos los campos de calificaciones.
   var clearBtn = document.getElementById("clearBtn");
 
   // Inputs para los nombres de materias (editable por el usuario).
@@ -56,43 +64,56 @@ document.addEventListener("DOMContentLoaded", function () {
   // Menú desplegable para filtrar materias en la tabla.
   var filterSubject = document.getElementById("filterSubject");
 
-  // Elementos para manejar el menú hamburger en móviles.
+  // Elementos para manejar el menú hamburguesa en móviles.
   var navToggle = document.querySelector(".nav-toggle");
   var nav = document.querySelector(".site-nav");
 
   console.log("Elementos del DOM almacenados para uso posterior.");
 
-  /* 2.MENÚ RESPONSIVE (Abrir/Cerrar)
-     Para pantallas pequeñas*/
+  /* 1.1 ESTADO INICIAL DE VISUALIZACIÓN
+     - Mostrar la sección de login.
+     - Ocultar el panel de la app hasta que haya login exitoso. */
+  if (loginSection) {
+    loginSection.style.display = "block";
+  }
+  if (appContent) {
+    appContent.style.display = "none";
+  }
 
-  navToggle.addEventListener("click", function () {
-    console.log(" Click en el botón de menú responsive.");
+  /* 2. MENÚ RESPONSIVE (Abrir/Cerrar) - Para pantallas pequeñas */
 
-    // Si la clase "open" ya existe, se cierra el menú
-    if (nav.classList.contains("open")) {
-      console.log("Cerrando menú responsive.");
-      nav.classList.remove("open");
-      navToggle.setAttribute("aria-expanded", "false");
-    } else {
-      // Si no existe, se abre el menú
-      console.log(" Abriendo menú responsive.");
-      nav.classList.add("open");
-      navToggle.setAttribute("aria-expanded", "true");
-    }
-  });
+  if (navToggle && nav) {
+    navToggle.addEventListener("click", function () {
+      console.log("Click en el botón de menú responsive.");
 
-  // Cierra el menú si el usuario hace clic en un enlace dentro del menú
-  nav.addEventListener("click", function (event) {
-    if (event.target.tagName === "A" && nav.classList.contains("open")) {
-      console.log("Clic en enlace del menú, cerrando menú automáticamente.");
-      nav.classList.remove("open");
-      navToggle.setAttribute("aria-expanded", "false");
-    }
-  });
+      // Si la clase "open" ya existe, se cierra el menú
+      if (nav.classList.contains("open")) {
+        console.log("Cerrando menú responsive.");
+        nav.classList.remove("open");
+        navToggle.setAttribute("aria-expanded", "false");
+      } else {
+        // Si no existe, se abre el menú
+        console.log("Abriendo menú responsive.");
+        nav.classList.add("open");
+        navToggle.setAttribute("aria-expanded", "true");
+      }
+    });
+
+    // Cierra el menú si el usuario hace clic en un enlace dentro del menú
+    nav.addEventListener("click", function (event) {
+      if (event.target.tagName === "A" && nav.classList.contains("open")) {
+        console.log(
+          "Clic en enlace del menú, cerrando menú automáticamente."
+        );
+        nav.classList.remove("open");
+        navToggle.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
 
   /* 3. SINCRONIZAR LOS NOMBRES DE MATERIAS
      Cada vez que el usuario cambie un nombre, se actualiza
-     el panel de captura y el panel de resultados*/
+     el panel de captura y el panel de resultados */
 
   function syncSubjectLabels() {
     console.log("Sincronizando nombres de materias…");
@@ -123,10 +144,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // Actualizar una vez al inicio
   syncSubjectLabels();
 
-  /* 4.FUNCIONES PARA MOSTRAR MENSAJES DE ERROR Y ÉXITO
+  /* 4. FUNCIONES PARA MOSTRAR MENSAJES DE ERROR Y ÉXITO
      Estas funciones actualizan el texto visible
-     debajo del formulario con retroalimentación clara.
- */
+     debajo del formulario con retroalimentación clara. */
 
   function showError(message) {
     console.log("ERROR:", message);
@@ -142,14 +162,13 @@ document.addEventListener("DOMContentLoaded", function () {
     formMessage.classList.remove("error");
   }
 
-  /* 5. VALIDACIÓN BÁSICA DEL FORMULARIO
+  /* 5. VALIDACIÓN BÁSICA DEL FORMULARIO DE CALIFICACIONES
      - Que el nombre no esté vacío
-     - Que el email sea válido
      - Que todas las calificaciones estén completas
        y dentro del rango 0–10 */
 
   function validateForm() {
-    console.log(" Iniciando validación del formulario…");
+    console.log("Iniciando validación del formulario de calificaciones…");
 
     var nameInput = document.getElementById("studentName");
     var gradeInputs = document.querySelectorAll(".grade-input");
@@ -166,7 +185,7 @@ document.addEventListener("DOMContentLoaded", function () {
       var num = parseFloat(value);
 
       if (value === "" || isNaN(num) || num < 0 || num > 10) {
-        console.log(" Calificación inválida encontrada:", value);
+        console.log("Calificación inválida encontrada:", value);
         gradeInputs[i].classList.add("invalid");
         showError("Las calificaciones deben estar entre 0 y 10.");
         return false;
@@ -175,7 +194,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    console.log("Formulario válido.");
+    console.log("Formulario de calificaciones válido.");
     return true;
   }
 
@@ -192,7 +211,11 @@ document.addEventListener("DOMContentLoaded", function () {
       grades.push(parseFloat(inputs[i].value));
     }
 
-    console.log("Calificaciones capturadas para materia", subjectIndex + ":", grades);
+    console.log(
+      "Calificaciones capturadas para materia",
+      subjectIndex + ":",
+      grades
+    );
     return grades;
   }
 
@@ -200,7 +223,7 @@ document.addEventListener("DOMContentLoaded", function () {
      Presentación de los datos devueltos por el backend */
 
   function formatNumber(value) {
-    return (value === null || value === undefined || isNaN(value))
+    return value === null || value === undefined || isNaN(value)
       ? "-"
       : Number(value).toFixed(1);
   }
@@ -209,12 +232,19 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("Actualizando resultados con datos del servidor:", data);
 
     // Datos por materia
+    var forecasts = [];
+
     if (data.subjects && data.subjects.length) {
       for (var i = 0; i < data.subjects.length; i++) {
         var subj = data.subjects[i];
         var index = i + 1; // 1, 2, 3
 
-        // Actualizar promedios
+        // Guardamos el pronóstico para luego calcular el global
+        if (typeof subj.forecast === "number" && !isNaN(subj.forecast)) {
+          forecasts.push(subj.forecast);
+        }
+
+        // Actualizar promedios y pronósticos en el DOM
         if (index === 1) {
           avgSubject1.textContent = formatNumber(subj.average);
           forecastSubject1.textContent = formatNumber(subj.forecast);
@@ -228,9 +258,24 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    // Datos globales
-    globalAverage.textContent = formatNumber(data.global_average);
-    globalForecast.textContent = formatNumber(data.global_forecast);
+    // Promedio general (lo envía el backend)
+    if (data.global_average !== undefined) {
+      globalAverage.textContent = formatNumber(data.global_average);
+    } else {
+      globalAverage.textContent = "-";
+    }
+
+    // Pronóstico global: lo calculamos en el frontend
+    if (forecasts.length > 0) {
+      var sumF = 0;
+      for (var j = 0; j < forecasts.length; j++) {
+        sumF += forecasts[j];
+      }
+      var avgForecast = sumF / forecasts.length;
+      globalForecast.textContent = formatNumber(avgForecast);
+    } else {
+      globalForecast.textContent = "-";
+    }
   }
 
   /* 8. EVENTO SUBMIT (cuando se presiona “Calcular promedios”)
@@ -238,119 +283,224 @@ document.addEventListener("DOMContentLoaded", function () {
      - Se validan datos en el navegador
      - Construye un objeto JSON
      - Envía al backend Flask (POST /calculate)
-     - Recibe promedios y pronósticos desde el servidor
-  */
+     - Recibe promedios y pronósticos desde el servidor */
 
-  gradeForm.addEventListener("submit", function (event) {
-    event.preventDefault(); // Evita recarga de página
-    console.log("Botón CALCULAR presionado");
+  if (gradeForm) {
+    gradeForm.addEventListener("submit", function (event) {
+      event.preventDefault(); // Evita recarga de página
+      console.log("Botón CALCULAR presionado");
 
-    // Ejecutar validación básica
-    if (!validateForm()) {
-      return;
-    }
+      // Ejecutar validación básica
+      if (!validateForm()) {
+        return;
+      }
 
-    // Mantener nombres de materias actualizados
-    syncSubjectLabels();
+      // Mantener nombres de materias actualizados
+      syncSubjectLabels();
 
-    // Obtener calificaciones de las tres materias.
-    var s1 = getSubjectGrades(1);
-    var s2 = getSubjectGrades(2);
-    var s3 = getSubjectGrades(3);
+      // Obtener calificaciones de las tres materias.
+      var s1 = getSubjectGrades(1);
+      var s2 = getSubjectGrades(2);
+      var s3 = getSubjectGrades(3);
 
-    // Obtener nombres de materias 
-    var name1 = labelSubject1.textContent || "Materia 1";
-    var name2 = labelSubject2.textContent || "Materia 2";
-    var name3 = labelSubject3.textContent || "Materia 3";
+      // Obtener nombres de materias 
+      var name1 = labelSubject1.textContent || "Materia 1";
+      var name2 = labelSubject2.textContent || "Materia 2";
+      var name3 = labelSubject3.textContent || "Materia 3";
 
-    // Datos generales del estudiante
-    var studentName = document.getElementById("studentName").value.trim();
+      // Datos generales del estudiante
+      var studentName = document
+        .getElementById("studentName")
+        .value.trim();
 
-    // Construir el payload para el backend
-    var payload = {
-      student_name: studentName,
-      subjects: [
-        { name: name1, grades: s1 },
-        { name: name2, grades: s2 },
-        { name: name3, grades: s3 }
-      ]
-    };
+      // Construir el payload para el backend
+      var payload = {
+        student_name: studentName,
+        subjects: [
+          { name: name1, grades: s1 },
+          { name: name2, grades: s2 },
+          { name: name3, grades: s3 }
+        ]
+      };
 
-    console.log("Enviando datos al backend Flask:", payload);
+      console.log("Enviando datos al backend Flask:", payload);
 
-    // Solicitud fetch al backend para realizar los cálculos
-    fetch("/calculate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include", // Enviar cookie de sesión
-      body: JSON.stringify(payload)
-    })
-      .then(function (res) {
-        return res.json();
+      // Solicitud fetch al backend para realizar los cálculos
+      fetch("/calculate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // Enviar cookie de sesión (sesión autenticada)
+        body: JSON.stringify(payload)
       })
-      .then(function (data) {
-        if (data.error) {
-          showError("Error desde el servidor: " + data.error);
-          return;
-        }
+        .then(function (res) {
+          return res.json();
+        })
+        .then(function (data) {
+          if (data.error) {
+            showError("Error desde el servidor: " + data.error);
+            return;
+          }
 
-        // Actualizar resultados con datos procesados en el backend
-        updateResultsFromServer(data);
+          // Actualizar resultados con datos procesados en el backend
+          updateResultsFromServer(data);
 
-        console.log("Resultados finales del cálculo (servidor):", data);
-        showSuccess("Cálculos realizados correctamente.");
-      })
-      .catch(function (err) {
-        console.error("Error en la petición al servidor:", err);
-        showError("Ocurrió un error al comunicarse con el servidor.");
-      });
-  });
+          console.log("Resultados finales del cálculo (servidor):", data);
+          showSuccess("Cálculos realizados correctamente.");
+        })
+        .catch(function (err) {
+          console.error("Error en la petición al servidor:", err);
+          showError("Ocurrió un error al comunicarse con el servidor.");
+        });
+    });
+  }
 
   /* 9. BOTÓN “LIMPIAR DATOS”
      Restablece el formulario y limpia todos los resultados.*/
 
-  clearBtn.addEventListener("click", function () {
-    console.log("🧹 Botón LIMPIAR presionado. Reiniciando todo…");
+  if (clearBtn) {
+    clearBtn.addEventListener("click", function () {
+      console.log("🧹 Botón LIMPIAR presionado. Reiniciando todo…");
 
-    gradeForm.reset(); // Limpia inputs del formulario
-    syncSubjectLabels(); // Restaura nombres
+      gradeForm.reset(); // Limpia inputs del formulario
+      syncSubjectLabels(); // Restaura nombres
 
-    // Reiniciar resultados de pantalla.
-    avgSubject1.textContent = "-";
-    avgSubject2.textContent = "-";
-    avgSubject3.textContent = "-";
+      // Reiniciar resultados de pantalla.
+      avgSubject1.textContent = "-";
+      avgSubject2.textContent = "-";
+      avgSubject3.textContent = "-";
 
-    forecastSubject1.textContent = "-";
-    forecastSubject2.textContent = "-";
-    forecastSubject3.textContent = "-";
+      forecastSubject1.textContent = "-";
+      forecastSubject2.textContent = "-";
+      forecastSubject3.textContent = "-";
 
-    globalAverage.textContent = "-";
-    globalForecast.textContent = "-";
+      globalAverage.textContent = "-";
+      globalForecast.textContent = "-";
 
-    formMessage.textContent = "";
-    formMessage.className = "";
+      formMessage.textContent = "";
+      formMessage.className = "";
 
-    console.log(" Todo reiniciado correctamente.");
-  });
+      console.log("Todo reiniciado correctamente.");
+    });
+  }
 
   /* 10. FILTRO DE MATERIAS EN LA TABLA
      Muestra solo la materia seleccionada o todas.*/
 
-  filterSubject.addEventListener("change", function () {
-    console.log(" Filtro seleccionado:", filterSubject.value);
+  if (filterSubject) {
+    filterSubject.addEventListener("change", function () {
+      console.log("Filtro seleccionado:", filterSubject.value);
 
-    var rows = document.querySelectorAll("[data-subject-row]");
-    var value = filterSubject.value;
+      var rows = document.querySelectorAll("[data-subject-row]");
+      var value = filterSubject.value;
 
-    // Mostrar u ocultar filas según el filtro.
-    for (var i = 0; i < rows.length; i++) {
-      var index = rows[i].getAttribute("data-subject-row");
+      // Mostrar u ocultar filas según el filtro.
+      for (var i = 0; i < rows.length; i++) {
+        var index = rows[i].getAttribute("data-subject-row");
 
-      if (value === "all" || value === index) {
-        rows[i].style.display = "";
-      } else {
-        rows[i].style.display = "none";
+        if (value === "all" || value === index) {
+          rows[i].style.display = "";
+        } else {
+          rows[i].style.display = "none";
+        }
       }
-    }
-  });
+    });
+  }
+
+  /* 11. LÓGICA DE LOGIN (AUTENTICACIÓN) */
+
+  if (loginForm && loginEmail && loginPassword) {
+    loginForm.addEventListener("submit", function (event) {
+      event.preventDefault(); // Evita envío tradicional del formulario
+
+      var email = loginEmail.value.trim();
+      var password = loginPassword.value.trim();
+
+      if (!email || !password) {
+        loginMessage.textContent =
+          "Ingresa tu correo institucional y contraseña.";
+        loginMessage.classList.add("error");
+        loginMessage.classList.remove("success");
+        return;
+      }
+
+      console.log("Enviando datos de login al backend:", email);
+
+      fetch("/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "include", // Necesario para que se guarde la sesión
+        body: JSON.stringify({
+          email: email,       // Claves que espera app.py
+          password: password
+        })
+      })
+        .then(function (res) {
+          return res.json();
+        })
+        .then(function (data) {
+          if (data.error) {
+            console.log("Error de login:", data.error);
+            loginMessage.textContent = data.error;
+            loginMessage.classList.add("error");
+            loginMessage.classList.remove("success");
+          } else {
+            console.log("Login exitoso:", data);
+            loginMessage.textContent = "Inicio de sesión exitoso.";
+            loginMessage.classList.add("success");
+            loginMessage.classList.remove("error");
+
+            // Ocultar login y mostrar la app
+            if (loginSection) {
+              loginSection.style.display = "none";
+            }
+            if (appContent) {
+              appContent.style.display = "block";
+            }
+          }
+        })
+        .catch(function (err) {
+          console.error("Error en la petición de login:", err);
+          loginMessage.textContent =
+            "Error al conectarse con el servidor.";
+          loginMessage.classList.add("error");
+          loginMessage.classList.remove("success");
+        });
+    });
+  }
+
+  /* 12. LÓGICA DE LOGOUT (Cerrar sesión) - opcional */
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", function () {
+      console.log("Botón CERRAR SESIÓN presionado.");
+
+      fetch("/logout", {
+        method: "POST",
+        credentials: "include"
+      })
+        .then(function (res) {
+          return res.json();
+        })
+        .then(function (data) {
+          console.log("Logout:", data);
+
+          // Mostrar login y ocultar panel
+          if (loginSection) {
+            loginSection.style.display = "block";
+          }
+          if (appContent) {
+            appContent.style.display = "none";
+          }
+
+          loginMessage.textContent = "Sesión cerrada correctamente.";
+          loginMessage.classList.add("success");
+          loginMessage.classList.remove("error");
+        })
+        .catch(function (err) {
+          console.error("Error al cerrar sesión:", err);
+        });
+    });
+  }
 });
