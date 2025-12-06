@@ -1,13 +1,11 @@
-"""
-Backend en Flask para cálculo de promedios y pronóstico de calificaciones,
-con autenticación básica mediante sesión y validación de inscripción del usuario.
+"""Backend en Flask para cálculo de promedios y pronóstico de calificaciones,
+con autenticación básica mediante sesión y validación de inscripción del usuario por email.
 
 Estrategia básica de mantenimiento:
 - Variable APP_VERSION para indicar la versión actual.
 - Estructura APP_CHANGELOG para documentar cambios relevantes.
 - Endpoint /meta para exponer información de versión y última actualización,
-  útil para monitoreo y para coordinar despliegues y pruebas.
-"""
+  útil para monitoreo y para coordinar despliegues y pruebas."""
 
 import os
 from typing import List, Optional
@@ -26,10 +24,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 # 1. Configuración básica de la aplicación
 
-# Ruta base del proyecto (carpeta donde está este app.py)
+# Ruta base del proyecto (carpeta donde se encuentra este app.py)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Indicamos explícitamente dónde están templates y estáticos:
+# Indicar explícitamente dónde están templates y estáticos para que los encuentre Flask:
 # - Backend/templates  → HTML (index.html)
 # - Backend/static     → CSS, JS, imágenes
 app = Flask(
@@ -39,10 +37,9 @@ app = Flask(
 )
 
 # Clave secreta para firmar la sesión.
-# En producción se recomienda definir SECRET_KEY en variables de entorno.
 app.config["SECRET_KEY"] = os.environ.get(
     "SECRET_KEY",
-    "llave_UNITEC_desarrollo"  # valor de respaldo solo para entorno local
+    "llave_UNITEC_desarrollo"  
 )
 
 # Metadatos de versión y mantenimiento
@@ -63,15 +60,15 @@ APP_CHANGELOG = [
 ]
 
 
-# 2. "Base de datos" simulada de usuarios (en un entorno real iría a una BD)
+# 2. "Base de datos" simulada de usuarios (en un entorno real enlazaría a una BD mediante API)
 
 usuarios = {
-    "profesor_inscrito@ejemplo.com": {
-        "password_hash": generate_password_hash("profe_inscrito"),
+    "alumno_inscrito@unitec.edu": {
+        "password_hash": generate_password_hash("alumno_inscrito"),
         "is_enrolled": True
     },
-    "profesor_no_inscrito@ejemplo.com": {
-        "password_hash": generate_password_hash("profe_no_inscrito"),
+    "alumno_no_inscrito@unitec.edu": {
+        "password_hash": generate_password_hash("alumno_no_inscrito"),
         "is_enrolled": False
     }
 }
@@ -85,13 +82,12 @@ def obtener_usuario(email: str):
 # 3. Decorador para exigir autenticación e inscripción
 
 def login_requerido(f):
-    """
-    Decorador que:
+    """Decorador que:
     - Verifica que haya un usuario autenticado en la sesión.
     - Verifica que esté marcado como inscrito (is_enrolled == True).
 
-    Si no se cumple, devuelve un error JSON 401 o 403.
-    """
+    Si no se cumple, devuelve un error JSON 401 o 403"""
+
     @wraps(f)
     def wrapper(*args, **kwargs):
         email = session.get("user_email")
@@ -119,10 +115,8 @@ def login_requerido(f):
 # 4. Funciones de lógica (cálculos)
 
 def calculate_average(grades: List[Optional[float]]) -> float:
-    """
-    Calcula el promedio usando solo las calificaciones válidas (no None, no NaN).
-    Si no hay calificaciones válidas, devuelve NaN.
-    """
+    """Calcula el promedio usando solo las calificaciones válidas.
+    Si no hay calificaciones válidas, devuelve NaN."""
     valid = [g for g in grades if g is not None and not math.isnan(g)]
     if not valid:
         return math.nan
@@ -130,15 +124,13 @@ def calculate_average(grades: List[Optional[float]]) -> float:
 
 
 def forecast_last_two_average(grades: List[Optional[float]]) -> float:
-    """
-    Pronóstico simple basado en el promedio de las últimas dos calificaciones válidas.
+    """Pronóstico simple basado en el promedio de las últimas dos calificaciones válidas.
 
-    Reglas:
-    - Si NO hay calificaciones válidas -> devuelve NaN.
-    - Si solo hay UNA calificación válida -> el pronóstico es esa misma nota.
-    - Si hay DOS o más calificaciones válidas -> se toman las 2 más recientes
-      y se calcula su promedio.
-    """
+    Lógica:
+    - Si no hay calificaciones válidas -> devuelve NaN.
+    - Si solo hay una calificación válida -> el pronóstico es esa misma nota.
+    - Si hay 2 o más calificaciones válidas -> se toman las 2 más recientes
+      y se calcula su promedio. """
     valid = [g for g in grades if g is not None and not math.isnan(g)]
     n = len(valid)
 
@@ -155,11 +147,7 @@ def forecast_last_two_average(grades: List[Optional[float]]) -> float:
 
 @app.route("/")
 def home():
-    """
-    Muestra la página principal con:
-    - Formulario de login
-    - Formulario de cálculo de promedios
-    """
+    """Muestra la página principal con:formulario de login y formulario de cálculo de promedios"""
     return render_template(
         "index.html",
         app_version=APP_VERSION,
@@ -169,22 +157,18 @@ def home():
 
 @app.route("/health", methods=["GET"])
 def health_check():
-    """
-    Endpoint sencillo para comprobar que el backend está en funcionamiento.
-    Útil para monitoreo y pruebas de disponibilidad.
-    """
+    """Endpoint sencillo para comprobar que el backend está en funcionamiento 
+    para monitoreo y pruebas de disponibilidad."""
     return jsonify({"status": "ok", "timestamp": datetime.utcnow().isoformat()}), 200
 
 
 @app.route("/meta", methods=["GET"])
 def meta_info():
-    """
-    Endpoint de mantenimiento y versionado.
+    """Endpoint de mantenimiento y versionado.
     Devuelve información sobre:
     - Versión actual
     - Fecha de última actualización
-    - Cambios relevantes (changelog resumido)
-    """
+    - Cambios relevantes (changelog resumido)"""
     return jsonify({
         "app_version": APP_VERSION,
         "last_update": APP_LAST_UPDATE,
@@ -192,21 +176,12 @@ def meta_info():
     }), 200
 
 
-# 6. Endpoints de autenticación con modelo de monetización implícito
+# 6. Endpoints de autenticación con modelo de monetización implícito por suscripción.
 
 @app.route("/login", methods=["POST"])
 def login():
-    """
-    Endpoint de autenticación básica.
-    Espera un JSON con, por ejemplo:
-    {
-      "email": "profesor_inscrito@ejemplo.com",
-      "password": "profe_inscrito"
-    }
-
-    Si las credenciales son válidas y el usuario existe,
-    se almacena el email en la sesión.
-    """
+    """Endpoint de autenticación básica.
+    Espera un JSON con cuenta de usuario válida"""
     data = request.get_json(silent=True)
 
     if data is None:
@@ -225,7 +200,7 @@ def login():
     if not check_password_hash(user["password_hash"], password):
         return jsonify({"error": "Credenciales inválidas."}), 401
 
-    # Credenciales correctas: guardamos el usuario en la sesión
+    # Credenciales correctas: se guarda el usuario en la sesión
     session["user_email"] = email
 
     return jsonify({
@@ -237,10 +212,8 @@ def login():
 
 @app.route("/logout", methods=["POST"])
 def logout():
-    """
-    Endpoint para cerrar sesión.
-    Elimina el usuario de la sesión actual.
-    """
+    """Endpoint para cerrar sesión.
+    Elimina el usuario de la sesión actual."""
     session.pop("user_email", None)
     return jsonify({"message": "Sesión cerrada correctamente."}), 200
 
@@ -250,14 +223,12 @@ def logout():
 @app.route("/calculate", methods=["POST"])
 @login_requerido
 def calculate_grades():
-    """
-    Endpoint principal:
-    - Requiere que el usuario esté autenticado y esté inscrito.
+    """Endpoint principal:
+    - Requiere que el usuario esté autenticado e inscrito.
     - Recibe un JSON con student_name y subjects.
     - Calcula promedio y pronóstico por materia.
-    - Calcula promedio global (promedio de promedios por materia).
-    - Devuelve un JSON con los resultados.
-    """
+    - Calcula promedio global por materia.
+    - Devuelve un JSON con los resultados."""
     data = request.get_json(silent=True)
 
     if data is None:
