@@ -152,18 +152,11 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log(" Iniciando validación del formulario…");
 
     var nameInput = document.getElementById("studentName");
-    var emailInput = document.getElementById("studentEmail");
     var gradeInputs = document.querySelectorAll(".grade-input");
 
     // Validar nombre vacío
     if (nameInput.value.trim() === "") {
       showError("Por favor, ingresa el nombre del estudiante.");
-      return false;
-    }
-
-    // Validar correo mediante checkValidity() (HTML)
-    if (!emailInput.checkValidity()) {
-      showError("Por favor, ingresa un correo electrónico válido.");
       return false;
     }
 
