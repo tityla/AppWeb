@@ -9,6 +9,7 @@ Estrategia básica de mantenimiento:
   útil para monitoreo y para coordinar despliegues y pruebas.
 """
 
+import os
 from typing import List, Optional
 import math
 from functools import wraps
@@ -25,12 +26,26 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 # 1. Configuración básica de la aplicación
 
-app = Flask(__name__)
+# Ruta base del proyecto (carpeta donde está este app.py)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Clave secreta para firmar la sesión 
-app.config["SECRET_KEY"] = "llave_UNITEC"
+# Indicamos explícitamente dónde están templates y estáticos:
+# - Backend/templates  → HTML (index.html)
+# - Backend/static     → CSS, JS, imágenes
+app = Flask(
+    __name__,
+    template_folder=os.path.join(BASE_DIR, "Backend", "templates"),
+    static_folder=os.path.join(BASE_DIR, "Backend", "static"),
+)
 
-# Metadatos de versión y mantenimiento 
+# Clave secreta para firmar la sesión.
+# En producción se recomienda definir SECRET_KEY en variables de entorno.
+app.config["SECRET_KEY"] = os.environ.get(
+    "SECRET_KEY",
+    "llave_UNITEC_desarrollo"  # valor de respaldo solo para entorno local
+)
+
+# Metadatos de versión y mantenimiento
 APP_VERSION = "1.0.0"
 APP_LAST_UPDATE = "2025-12-02"
 APP_CHANGELOG = [
@@ -48,7 +63,7 @@ APP_CHANGELOG = [
 ]
 
 
-# 2. "Base de datos" simulada de usuarios (en un entorno real estaría en una BD)
+# 2. "Base de datos" simulada de usuarios (en un entorno real iría a una BD)
 
 usuarios = {
     "profesor_inscrito@ejemplo.com": {
@@ -68,7 +83,6 @@ def obtener_usuario(email: str):
 
 
 # 3. Decorador para exigir autenticación e inscripción
-
 
 def login_requerido(f):
     """
@@ -178,16 +192,16 @@ def meta_info():
     }), 200
 
 
-# 6. Endpoints de autenticación con modelo de monetización implícito a la suscripción
+# 6. Endpoints de autenticación con modelo de monetización implícito
 
 @app.route("/login", methods=["POST"])
 def login():
     """
     Endpoint de autenticación básica.
-    Espera un JSON con:
+    Espera un JSON con, por ejemplo:
     {
-      "email": "profesor_inscrito@example.com",
-      "password": "contrasena_segura"
+      "email": "profesor_inscrito@ejemplo.com",
+      "password": "profe_inscrito"
     }
 
     Si las credenciales son válidas y el usuario existe,
