@@ -4,8 +4,7 @@ con autenticación básica mediante sesión y validación de inscripción del us
 Estrategia básica de mantenimiento:
 - Variable APP_VERSION para indicar la versión actual.
 - Estructura APP_CHANGELOG para documentar cambios relevantes.
-- Endpoint /meta para exponer información de versión y última actualización,
-  útil para monitoreo y para coordinar despliegues y pruebas."""
+- Endpoint /meta para exponer información de versión y última actualización."""
 
 import os
 from typing import List, Optional
@@ -27,9 +26,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # Ruta base del proyecto (carpeta donde se encuentra este app.py)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Indicar explícitamente dónde están templates y estáticos para que los encuentre Flask:
-# - Backend/templates  → HTML (index.html)
-# - Backend/static     → CSS, JS, imágenes
+# Indicar explícitamente dónde están plantillas y estáticos para que los encuentre Flask:
+# - Backend/templates: HTML
+# - Backend/static: CSS, JS, imágenes
 app = Flask(
     __name__,
     template_folder=os.path.join(BASE_DIR, "Backend", "templates"),
@@ -48,12 +47,12 @@ APP_LAST_UPDATE = "2025-12-02"
 APP_CHANGELOG = [
     {
         "version": "1.0.0",
-        "date": "2025-12-02",
+        "date": "2025-12-05",
         "changes": [
-            "Implementación inicial de backend Flask.",
+            "Implementación inicial de backend Flask",
             "Autenticación básica con sesión y validación de usuario inscrito.",
             "Endpoint /calculate para cálculo de promedios y pronóstico.",
-            "Integración con frontend (index.html, CSS, JS).",
+            "Integración con frontend (index.html, CSS, JS)",
             "Exposición del endpoint /meta para consulta de versión."
         ]
     }

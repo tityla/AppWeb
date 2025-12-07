@@ -406,7 +406,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  /* 11. LÓGICA DE LOGIN (AUTENTICACIÓN) */
+  /* 11. LÓGICA DE LOGIN  PARA AUTENTICACIÓN */
 
   if (loginForm && loginEmail && loginPassword) {
     loginForm.addEventListener("submit", function (event) {
